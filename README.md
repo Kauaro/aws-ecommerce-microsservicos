@@ -1,45 +1,45 @@
-# ?? AWS E-Commerce — Microsserviços com .NET
+ï»¿#  AWS E-Commerce â€” MicrosserviÃ§os com .NET
 
-Sistema de e-commerce baseado em microsserviços na AWS, desenvolvido com C# .NET 8, Lambda, SQS, DynamoDB e SES.
+Sistema de e-commerce baseado em microsserviÃ§os na AWS, desenvolvido com C# .NET 8, Lambda, SQS, DynamoDB e SES.
 
 ![CI/CD](https://github.com/Kauaro/aws-ecommerce-microsservicos/actions/workflows/build.yml/badge.svg)
 
 ---
 
-## ??? Arquitetura
+##  Arquitetura
 ```
 Cliente
-   ?
+   â†“
 API Gateway
-   ?
+   â†“
 OrderService (Lambda + .NET)
-   ?
+   â†“
 SQS (OrderCreatedQueue)
-   ?
+   â†“
 PaymentService (Lambda + .NET)
-   ?
+   â†“
 SQS (PaymentProcessedQueue)
-   ?
+   â†“
 NotificationService (Lambda + .NET)
-   ?
-SES ? E-mail
+   â†“
+SES â†’ E-mail
 ```
 
 ---
 
-## ?? Microsserviços
+##  MicrosserviÃ§os
 
-| Serviço | Responsabilidade | Tecnologias |
+| ServiÃ§o | Responsabilidade | Tecnologias |
 |---|---|---|
-| OrderService | Recebe e registra pedidos | .NET 8 · Lambda · API Gateway · DynamoDB · SQS |
-| PaymentService | Processa pagamentos com idempotência | .NET 8 · Lambda · SQS · DynamoDB |
-| NotificationService | Envia notificações por e-mail | .NET 8 · Lambda · SQS · SES |
+| OrderService | Recebe e registra pedidos | .NET 8 Â· Lambda Â· API Gateway Â· DynamoDB Â· SQS |
+| PaymentService | Processa pagamentos com idempotÃªncia | .NET 8 Â· Lambda Â· SQS Â· DynamoDB |
+| NotificationService | Envia notificaÃ§Ãµes por e-mail | .NET 8 Â· Lambda Â· SQS Â· SES |
 
 ---
 
-## ?? Como rodar localmente
+##  Como rodar localmente
 
-### Pré-requisitos
+### PrÃ©-requisitos
 - .NET 10 SDK
 - Docker Desktop
 - AWS CLI
@@ -66,7 +66,7 @@ aws sqs create-queue --queue-name OrderCreatedDLQ --endpoint-url http://localhos
 aws sqs create-queue --queue-name PaymentProcessedQueue --endpoint-url http://localhost:4566 --region us-east-1 --profile local
 ```
 
-### 3. Sobe os serviços
+### 3. Sobe os serviÃ§os
 ```bash
 # Terminal 1
 cd OrderService && dotnet run
@@ -83,19 +83,19 @@ Acessa `http://localhost:5000/swagger` e cria um pedido.
 
 ---
 
-## ?? Conceitos aplicados
+##  Conceitos aplicados
 
-- **Event-Driven Architecture** — serviços desacoplados via SQS
-- **Idempotência** — pagamentos não são processados em duplicidade
-- **Dead Letter Queue** — mensagens com falha são preservadas
-- **Clean Architecture** — Domain, Application, Infrastructure
-- **CI/CD** — GitHub Actions com build automático
+- **Event-Driven Architecture** â€” serviÃ§os desacoplados via SQS
+- **IdempotÃªncia** â€” pagamentos nÃ£o sÃ£o processados em duplicidade
+- **Dead Letter Queue** â€” mensagens com falha sÃ£o preservadas
+- **Clean Architecture** â€” Domain, Application, Infrastructure
+- **CI/CD** â€” GitHub Actions com build automÃ¡tico
 
 ---
 
-## ??? Roadmap
+##  Roadmap
 
-- [x] Fase 1 — OrderService + DynamoDB
-- [x] Fase 2 — Mensageria SQS + PaymentService + NotificationService
-- [x] Fase 3 — CI/CD GitHub Actions
-- [ ] Fase 4 — AuthService com ECS + RDS + Redis
+- [x] Fase 1 â€” OrderService + DynamoDB
+- [x] Fase 2 â€” Mensageria SQS + PaymentService + NotificationService
+- [x] Fase 3 â€” CI/CD GitHub Actions
+- [ ] Fase 4 â€” AuthService com ECS + RDS + Redis
