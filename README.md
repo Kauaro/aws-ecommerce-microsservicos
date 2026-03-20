@@ -11,18 +11,18 @@ Sistema de e-commerce baseado em microsserviços na AWS, desenvolvido com C# .NE
 Cliente
    ↓
 API Gateway
-   ↓
+   v
 OrderService (Lambda + .NET)
-   ↓
+   v
 SQS (OrderCreatedQueue)
-   ↓
+   v
 PaymentService (Lambda + .NET)
-   ↓
+   v
 SQS (PaymentProcessedQueue)
-   ↓
+   v
 NotificationService (Lambda + .NET)
-   ↓
-SES → E-mail
+   v
+SES > E-mail
 ```
 
 ---
