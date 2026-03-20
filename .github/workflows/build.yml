@@ -1,0 +1,59 @@
+name: CI/CD - Build & Testes
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]  
+
+jobs:
+  build-order-service:
+    name: OrderService
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+  
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Restore
+        run: dotnet restore ./OrderService/OrderService.csproj
+
+      - name: Build
+        run: dotnet build ./OrderService/OrderService.csproj --no-restore
+
+  build-payment-service:
+    name: PaymentService
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore ./PaymentService/PaymentService.csproj
+
+      - name: Build
+        run: dotnet build ./PaymentService/PaymentService.csproj --no-restore
+
+  build-notification-service:
+    name: NotificationService
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v3
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Restore
+        run: dotnet restore ./NotificationService/NotificationService.csproj
+
+      - name: Build
+        run: dotnet build ./NotificationService/NotificationService.csproj --no-restore
