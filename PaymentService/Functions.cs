@@ -21,6 +21,7 @@ public class Functions
             .Build());
 
         var services = new ServiceCollection();
+        services.AddSingleton<IConfiguration>(configuration);
         startup.ConfigureServices(services);
         _serviceProvider = services.BuildServiceProvider();
     }
