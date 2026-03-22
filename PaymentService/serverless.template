@@ -1,46 +1,31 @@
 {
   "AWSTemplateFormatVersion": "2010-09-09",
   "Transform": "AWS::Serverless-2016-10-31",
-  "Description": "An AWS Serverless Application that uses the ASP.NET Core framework running in Amazon Lambda.",
+  "Description": "PaymentService — consome OrderCreatedQueue e processa pagamentos.",
   "Parameters": {},
-  "Conditions": {},
   "Resources": {
-    "AspNetCoreFunction": {
+    "PaymentFunction": {
       "Type": "AWS::Serverless::Function",
       "Properties": {
-        "Handler": "PaymentService::PaymentService.LambdaEntryPoint::FunctionHandlerAsync",
+        "Handler": "PaymentService::PaymentService.Functions::FunctionHandler",
         "Runtime": "dotnet10",
         "CodeUri": "",
         "MemorySize": 512,
         "Timeout": 30,
-        "Role": null,
         "Policies": [
-          "AWSLambda_FullAccess"
+          "AWSLambda_FullAccess",
+          "AmazonDynamoDBFullAccess",
+          "AmazonSQSFullAccess"
         ],
         "Events": {
-          "ProxyResource": {
-            "Type": "Api",
+          "SQSTrigger": {
+            "Type": "SQS",
             "Properties": {
-              "Path": "/{proxy+}",
-              "Method": "ANY"
-            }
-          },
-          "RootResource": {
-            "Type": "Api",
-            "Properties": {
-              "Path": "/",
-              "Method": "ANY"
+              "Queue": "arn:aws:sqs:us-east-1:738685083398:OrderCreatedQueue",
+              "BatchSize": 1
             }
           }
         }
-      }
-    }
-  },
-  "Outputs": {
-    "ApiURL": {
-      "Description": "API endpoint URL for Prod environment",
-      "Value": {
-        "Fn::Sub": "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod/"
       }
     }
   }

@@ -51,10 +51,8 @@ public class Startup
             )
         );
 
-        services.AddSingleton<SqsConsumer>();
         services.AddScoped<IEmailSender, SesEmailSender>();
         services.AddScoped<EnviarNotificacaoUseCase>();
-        services.AddHostedService<NotificationWorker>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

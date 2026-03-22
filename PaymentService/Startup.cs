@@ -53,9 +53,7 @@ public class Startup
 
         services.AddScoped<IPagamentoRepository, PagamentoRepository>();
         services.AddScoped<ProcessarPagamentoUseCase>();
-        services.AddSingleton<SqsConsumer>();
         services.AddSingleton<SqsPublisher>();
-        services.AddHostedService<PaymentWorker>();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
