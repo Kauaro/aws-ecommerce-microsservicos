@@ -1,22 +1,29 @@
-name: CI/CD - Build & Testes
+name: CI/CD - Build, Testes & Deploy
 
 on:
   push:
     branches: [ main ]
   pull_request:
-    branches: [ main ]  
+    branches: [ main ]
 
 jobs:
   build-order-service:
     name: OrderService
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-  
+      - uses: actions/checkout@v4
+
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 10.0.x
+          dotnet-version: '10.0.x'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
       - name: Restore
         run: dotnet restore ./OrderService/OrderService.csproj
@@ -24,22 +31,59 @@ jobs:
       - name: Build
         run: dotnet build ./OrderService/OrderService.csproj --no-restore
 
+      - name: Install AWS Lambda Tools
+        run: dotnet tool install -g Amazon.Lambda.Tools
+
+      - name: Deploy OrderService
+        run: |
+          cd OrderService
+          dotnet lambda deploy-serverless \
+            --stack-name order-service \
+            --s3-bucket ecommerce-deploy-${{ secrets.AWS_ACCOUNT_ID }} \
+            --region us-east-1 \
+            --profile default
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
   build-payment-service:
     name: PaymentService
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup .NET
-        uses: actions/setup-dotnet@v3
+        uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '10.0.x'
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
 
       - name: Restore
         run: dotnet restore ./PaymentService/PaymentService.csproj
 
       - name: Build
         run: dotnet build ./PaymentService/PaymentService.csproj --no-restore
+
+      - name: Install AWS Lambda Tools
+        run: dotnet tool install -g Amazon.Lambda.Tools
+
+      - name: Deploy PaymentService
+        run: |
+          cd PaymentService
+          dotnet lambda deploy-serverless \
+            --stack-name payment-service \
+            --s3-bucket ecommerce-deploy-${{ secrets.AWS_ACCOUNT_ID }} \
+            --region us-east-1 \
+            --profile default
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
   build-notification-service:
     name: NotificationService
@@ -52,8 +96,30 @@ jobs:
         with:
           dotnet-version: '10.0.x'
 
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+
       - name: Restore
         run: dotnet restore ./NotificationService/NotificationService.csproj
 
       - name: Build
         run: dotnet build ./NotificationService/NotificationService.csproj --no-restore
+
+      - name: Install AWS Lambda Tools
+        run: dotnet tool install -g Amazon.Lambda.Tools
+
+      - name: Deploy NotificationService
+        run: |
+          cd NotificationService
+          dotnet lambda deploy-serverless \
+            --stack-name notification-service \
+            --s3-bucket ecommerce-deploy-${{ secrets.AWS_ACCOUNT_ID }} \
+            --region us-east-1 \
+            --profile default
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
