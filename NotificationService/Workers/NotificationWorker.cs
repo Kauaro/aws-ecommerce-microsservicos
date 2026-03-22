@@ -43,10 +43,18 @@ public class NotificationWorker : BackgroundService
             using var scope = _scopeFactory.CreateScope();
             var useCase = scope.ServiceProvider.GetRequiredService<EnviarNotificacaoUseCase>();
 
-            await useCase.ExecutarAsync(evento);
-            await _consumer.DeletarMensagemAsync(receiptHandle);
+            try
+            {
+                await useCase.ExecutarAsync(evento);
+                await _consumer.DeletarMensagemAsync(receiptHandle);
 
-            _logger.LogInformation($"[WORKER] Notificação enviada e mensagem deletada: {evento.PedidoId}");
+                _logger.LogInformation($"[WORKER] Notificação enviada e mensagem deletada: {evento.PedidoId}");
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao enviar email");
+            }
         }
     }
 }

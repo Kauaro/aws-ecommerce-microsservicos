@@ -1,5 +1,7 @@
 ﻿using Amazon.DynamoDBv2;
 using Amazon.SQS;
+using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
 using FluentValidation.AspNetCore;
 using OrderService.Application.UseCases;
 using OrderService.Domain.Interfaces;
@@ -18,45 +20,52 @@ public class Startup
 
     public IConfiguration Configuration { get; }
 
+    private static AWSCredentials GetCredentials()
+    {
+        var chain = new CredentialProfileStoreChain();
+        if (chain.TryGetAWSCredentials("aws-dev", out var credentials))
+            return credentials;
+        return FallbackCredentialsFactory.GetCredentials();
+    }
+
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddControllers();
 
-        var serviceUrl = Configuration["AWS:ServiceURL"];
-
         // DynamoDB
         services.AddSingleton<IAmazonDynamoDB>(_ =>
             new AmazonDynamoDBClient(
-                new Amazon.Runtime.BasicAWSCredentials("test", "test"),
-                new AmazonDynamoDBConfig { ServiceURL = serviceUrl }
+                GetCredentials(),
+                new AmazonDynamoDBConfig
+                {
+                    RegionEndpoint = Amazon.RegionEndpoint.USEast1
+                }
             )
         );
 
         // SQS
         services.AddSingleton<IAmazonSQS>(_ =>
             new AmazonSQSClient(
-                new Amazon.Runtime.BasicAWSCredentials("test", "test"),
-                new AmazonSQSConfig { ServiceURL = serviceUrl }
+                GetCredentials(),
+                new AmazonSQSConfig
+                {
+                    RegionEndpoint = Amazon.RegionEndpoint.USEast1
+                }
             )
         );
 
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
-
-        // Repositórios, Publishers e UseCases
         services.AddScoped<IPedidoRepository, PedidoRepository>();
         services.AddScoped<IEventPublisher, SqsPublisher>();
         services.AddScoped<CriarPedidoUseCase>();
-
-
         services.AddFluentValidationAutoValidation();
     }
 
     public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
     {
         if (env.IsDevelopment()) app.UseDeveloperExceptionPage();
-
         app.UseSwagger();
         app.UseSwaggerUI();
         app.UseRouting();

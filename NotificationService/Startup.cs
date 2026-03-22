@@ -1,5 +1,7 @@
 ﻿using Amazon.SimpleEmail;
 using Amazon.SQS;
+using Amazon.Runtime;
+using Amazon.Runtime.CredentialManagement;
 using NotificationService.Application.UseCases;
 using NotificationService.Domain.Interfaces;
 using NotificationService.Infrastructure.SES;
@@ -17,23 +19,35 @@ public class Startup
 
     public IConfiguration Configuration { get; }
 
+    private static AWSCredentials GetCredentials()
+    {
+        var chain = new CredentialProfileStoreChain();
+        if (chain.TryGetAWSCredentials("aws-dev", out var credentials))
+            return credentials;
+        return FallbackCredentialsFactory.GetCredentials();
+    }
+
     public void ConfigureServices(IServiceCollection services)
     {
-        var serviceUrl = Configuration["AWS:ServiceURL"];
-
         // SQS
         services.AddSingleton<IAmazonSQS>(_ =>
             new AmazonSQSClient(
-                new Amazon.Runtime.BasicAWSCredentials("test", "test"),
-                new AmazonSQSConfig { ServiceURL = serviceUrl }
+                GetCredentials(),
+                new AmazonSQSConfig
+                {
+                    RegionEndpoint = Amazon.RegionEndpoint.USEast1
+                }
             )
         );
 
         // SES
         services.AddSingleton<IAmazonSimpleEmailService>(_ =>
             new AmazonSimpleEmailServiceClient(
-                new Amazon.Runtime.BasicAWSCredentials("test", "test"),
-                new AmazonSimpleEmailServiceConfig { ServiceURL = serviceUrl }
+                GetCredentials(),
+                new AmazonSimpleEmailServiceConfig
+                {
+                    RegionEndpoint = Amazon.RegionEndpoint.USEast1
+                }
             )
         );
 
