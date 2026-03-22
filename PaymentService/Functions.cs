@@ -1,5 +1,6 @@
 using Amazon.Lambda.Core;
 using Amazon.Lambda.SQSEvents;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Newtonsoft.Json;
 using PaymentService.Application.UseCases;
@@ -15,14 +16,17 @@ public class Functions
 
     public Functions()
     {
-        var startup = new Startup(new ConfigurationBuilder()
+        var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.json")
             .AddEnvironmentVariables()
-            .Build());
+            .Build();
 
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
+
+        var startup = new Startup(configuration);
         startup.ConfigureServices(services);
+
         _serviceProvider = services.BuildServiceProvider();
     }
 
